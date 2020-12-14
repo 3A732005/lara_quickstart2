@@ -4,19 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Models\Task;
+use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class TaskController extends Controller
 {
     /**
-     * 建立一個新的控制器實例。
+     * 任務資源庫的實例。
      *
-     * @return void
+     * @var TaskRepository
      */
-    public function __construct()
+    protected $tasks;
+
+    public function __construct(TaskRepository $tasks)
     {
         $this->middleware('auth');
+        $this->tasks = $tasks;
     }
 
     public function index(Request $request)
@@ -32,6 +36,10 @@ class TaskController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|max:255',
+        ]);
+
+        $request->user()->tasks()->create([
+            'name' => $request->name,
         ]);
 
         return redirect('/tasks');
